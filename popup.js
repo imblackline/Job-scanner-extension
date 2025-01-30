@@ -17,6 +17,7 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
             });
 
             linkedinTabInfo.textContent = `Job: ${resp.result.jobTitle}, Company: ${resp.result.companyName}`;
+            chrome.runtime.sendMessage(resp.result);
         } catch (error) {
             console.error("Script execution failed", error);
         }
@@ -24,3 +25,13 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
         alert("Please open a LinkedIn job page.");
     }
 });
+
+// // Listen for update message from background.js
+// chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+//     if (message.action === "updated") {
+//         const updatedInfo = document.getElementById('updated');
+//         if (updatedInfo) {
+//             updatedInfo.textContent = `Job: ${message.jobTitle}, Company: ${message.companyName}`;
+//         }
+//     }
+// });
