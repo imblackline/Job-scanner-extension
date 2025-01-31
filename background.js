@@ -24,22 +24,3 @@ function pasteIntoGoogleSheet(jobTitle, companyName) {
  
 
 }
-chrome.storage.local.get("accessToken", function (data) {
-  if (data.accessToken) {
-    fetch("https://sheets.googleapis.com/v4/spreadsheets/YOUR_SHEET_ID/values/Sheet1!A:B:append?valueInputOption=RAW", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${data.accessToken}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          values: [
-            ["Job Title", "Company Name"]
-          ]
-        })
-      })
-      .then(response => response.json())
-      .then(data => console.log("✅ Data added:", data))
-      .catch(error => console.error("❌ Error:", error));
-  }
-});
