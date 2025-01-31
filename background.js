@@ -1,9 +1,4 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  // const linkedinTabInfo = document.getElementById('updated');
-  // linkedinTabInfo.textContent = `Job: action`;
-
-  // chrome.runtime.sendMessage({ action: "updated", jobTitle: message.jobTitle, companyName: message.companyName });
-
   if (message.jobTitle && message.companyName) {
     chrome.tabs.query({}, (tabs) => {
       let sheetsTab = tabs.find(tab => tab.url.includes("docs.google.com/spreadsheets"));
@@ -23,55 +18,28 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+
 function pasteIntoGoogleSheet(jobTitle, companyName) {
-  let sheetCells = document.querySelectorAll('div[role="gridcell"]'); // Get all Google Sheets cells
-  console.log(sheetCells);
-  let newCell = null;
-  for (let cell of sheetCells) {
-      if (cell.innerText.trim() === "NEW") {
-          newCell = cell;
-          break;
-      }
-  }
+  console.log("object", jobTitle);
+ 
 
-  if (!newCell) {
-      alert("No 'NEW' cell found. Please add 'NEW' where you want the job to be inserted.");
-      return;
-  }
-
-  // Insert job title in the "NEW" cell
-  newCell.innerText = jobTitle;
-
-  // Find the next cell in the same row (company name)
-  let companyCell = newCell.nextElementSibling;
-  if (companyCell) {
-      companyCell.innerText = companyName;
-  }
-
-  // Move "NEW" to the next row
-  let rowCells = [...newCell.parentElement.children];
-  let newIndex = rowCells.indexOf(newCell);
-  
-  let nextRow = newCell.parentElement.nextElementSibling;
-  if (nextRow) {
-      let nextRowCells = [...nextRow.children];
-      let targetCell = nextRowCells[newIndex];
-      if (targetCell) {
-          targetCell.innerText = "NEW";
-      }
-  }
 }
-// function pasteIntoGoogleSheet(jobTitle, companyName) {
-//   console.log("start");
-//   let activeCell = document.activeElement;
-//   console.log("Received message in background.js:", activeCell);
-//   if (activeCell && activeCell.tagName === "INPUT") {
-//     activeCell.value = `${jobTitle} - ${companyName}`;
-//     let event = new Event("input", {
-//       bubbles: true
-//     });
-//     activeCell.dispatchEvent(event);
-//   } else {
-//     alert("Click on a cell in Google Sheets before scanning.");
-//   }
-// }
+chrome.storage.local.get("accessToken", function (data) {
+  if (data.accessToken) {
+    fetch("https://sheets.googleapis.com/v4/spreadsheets/YOUR_SHEET_ID/values/Sheet1!A:B:append?valueInputOption=RAW", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${data.accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          values: [
+            ["Job Title", "Company Name"]
+          ]
+        })
+      })
+      .then(response => response.json())
+      .then(data => console.log("✅ Data added:", data))
+      .catch(error => console.error("❌ Error:", error));
+  }
+});
