@@ -1,37 +1,18 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>LinkedIn Job Scanner</title>
-    <script src="popup.js" defer></script>
+    <meta charset="UTF-8">
+    <title>Job Scanner</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-    <p id="linkedinTabInfo">No Content</p>
-    <button id="scanBtn">Apply Job</button>
-    <p id="updated">no sheet</p>
+    <div class="container">
+        <p id="linkedinTabInfo"><b>Let's make dreams a reality</b> 🚀</p>
+        <button id="scanBtn" class="scan-button">Apply Job</button>
+    </div>
+
+    <script src="data/cityList.js"></script>
+    <script src="data/countryList.js"></script>
+    <script src="popup.js"></script>
 </body>
-
 </html>
-<style>
-    body {
-        width: 150px;
-        height: 70px;
-    }
-
-    button {
-        width: 100%;
-        height: 100%;
-        background-color: #477c49;
-        color: white;
-        font-size: 16px;
-        border: none;
-        font-weight: bold;
-        cursor: pointer;
-        border-radius: 7px;
-    }
-
-    button:hover {
-        background-color: #336135;
-    }
-</style>
