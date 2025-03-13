@@ -1,44 +1,62 @@
 document.getElementById('scanBtn').addEventListener('click', async () => {
     
-    const linkedinTabInfo = document.getElementById('linkedinTabInfo');
-    linkedinTabInfo.textContent = "Scanning job details...";
+    const TabInfo = document.getElementById('TabInfo');
+    TabInfo.textContent = "Scanning job details...";
     
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
-    if (!tab.url.includes("linkedin.com/jobs")) {
-        alert("Please open a LinkedIn job page.");
+    let mode = "";
+    if (tab.url.includes("linkedin.com/jobs")) {
+        mode = "LinkedIn";
+    }else if (tab.url.includes("glassdoor.it/job-listing")) {
+        mode = "Glassdoor";
+    }else {
+        alert("Please open a LinkedIn or Glassdoor job page.");
         return;
     }
     const cityList = JSON.stringify(window.cityList);
     const countryList = JSON.stringify(window.countryList);
     if (!cityList || !countryList) {
         console.error("❌ cityList or countryList is not loaded!");
-        linkedinTabInfo.textContent = `Error: City and Country data not found!${countryList}`;
+        TabInfo.textContent = `Error: City and Country data not found!${countryList}`;
         return;
     }
 
     try {
         const [resp] = await chrome.scripting.executeScript({
             target: { tabId: tab.id },
-            args: [window.cityList, window.countryList], // ✅ Pass data safely
-            function: (cities, countries) => {
-                // ✅ Ensure arguments are valid before using them
+            args: [window.cityList, window.countryList, mode], 
+            function: (cities, countries, pageMode) => {
                 if (!cities || !countries) {
                     throw new Error("cityList or countryList is missing!");
                 }
 
-                // ✅ Define helper function inside executeScript
                 const getElementText = (selector, defaultValue = "Not Found") => {
                     return document.querySelector(selector)?.innerText || defaultValue;
                 };
-
-                const jobData = {
-                    jobTitle: getElementText("h1"),
-                    companyName: getElementText(".job-details-jobs-unified-top-card__company-name a"),
-                    workplaceType: getElementText(".job-details-jobs-unified-top-card__job-insight span span span span"),
-                    easyApply: document.querySelector(".jobs-apply-button--top-card button")?.ariaLabel.includes('Easy Apply') || false,
-                    location: getElementText(".job-details-jobs-unified-top-card__primary-description-container div span").toLowerCase()
-                };
+                const getLinkedinJobData = () => {
+                    return {
+                        jobTitle: getElementText("h1"),
+                        companyName: getElementText(".job-details-jobs-unified-top-card__company-name a"),
+                        workplaceType: getElementText(".job-details-jobs-unified-top-card__job-insight span span span span"),
+                        easyApply: document.querySelector(".jobs-apply-button--top-card button")?.ariaLabel.includes('Easy Apply') || false,
+                        location: getElementText(".job-details-jobs-unified-top-card__primary-description-container div span").toLowerCase()
+                    };
+                }
+                const getGlassdoorJobData = () => {
+                    return {
+                        jobTitle: getElementText(".heading_Heading__BqX5J.heading_Level1__soLZs"),
+                        companyName: getElementText(".heading_Heading__BqX5J.heading_Subhead__Ip1aW"),
+                        workplaceType: "On-site",
+                        easyApply: document.querySelector(".button_ButtonContent__a4TUW")?.querySelector('.EasyApplyButton_content__1cGPo') !== null || false,
+                        location: getElementText(".JobDetails_location__mSg5h").toLowerCase()
+                    };
+                }
+                let jobData = {};
+                if (pageMode === "LinkedIn") {
+                    jobData = getLinkedinJobData();
+                } else if (pageMode === "Glassdoor") {
+                    jobData = getGlassdoorJobData();
+                }
 
 
                 // ✅ Ensure `cities` is valid before using Object.values
@@ -76,13 +94,13 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
         ].join('\t');
 
         navigator.clipboard.writeText(textToWrite).then(() => {
-            linkedinTabInfo.textContent = `✅ Job data copied to clipboard`;
+            TabInfo.textContent = `✅ Job data copied to clipboard`;
         }).catch(err => {
             console.error("❌ Failed to copy:", err);
         });
 
     } catch (error) {
         console.error("❌ Script execution failed:", error);
-        linkedinTabInfo.textContent = "Error occurred while scanning job details";
+        TabInfo.textContent = "Error occurred while scanning job details";
     }
 });
