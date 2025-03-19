@@ -85,6 +85,7 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
             `=HYPERLINK("${tab.url}","Link")`,
             resp.result.easyApply ? 'Easy Apply' : 'Applied',
             'Not Respond',
+            'Not Respond',
             '-',
             '-',
             '-',
