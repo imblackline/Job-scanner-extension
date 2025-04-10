@@ -44,6 +44,7 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
                         jobTitle: getElementText("h1"),
                         companyName: getElementText(".job-details-jobs-unified-top-card__company-name a"),
                         workplaceType: workplaceTypeValue, 
+                        publishDate: document.querySelector(".job-details-jobs-unified-top-card__tertiary-description-container span span:nth-of-type(3)")?.innerText,
                         easyApply: document.querySelector(".jobs-apply-button--top-card button")?.ariaLabel.includes('Easy Apply') || false,
                         location: getElementText(".job-details-jobs-unified-top-card__primary-description-container div span").toLowerCase()
                     };
@@ -54,7 +55,8 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
                         companyName: getElementText(".heading_Heading__BqX5J.heading_Subhead__Ip1aW"),
                         workplaceType: "On-site",
                         easyApply: document.querySelector(".button_ButtonContent__a4TUW")?.querySelector('.EasyApplyButton_content__1cGPo') !== null || false,
-                        location: getElementText(".JobDetails_location__mSg5h").toLowerCase()
+                        location: getElementText(".JobDetails_location__mSg5h").toLowerCase(),
+                        publishDate: ""
                     };
                 }
                 let jobData = {};
@@ -97,7 +99,8 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
             '-',
             resp.result.country,
             resp.result.city,
-            resp.result.workplaceType
+            resp.result.workplaceType,
+            resp.result.publishDate
         ].join('\t');
 
         navigator.clipboard.writeText(textToWrite).then(() => {
