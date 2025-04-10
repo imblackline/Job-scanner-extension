@@ -34,10 +34,16 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
                     return document.querySelector(selector)?.innerText || defaultValue;
                 };
                 const getLinkedinJobData = () => {
+                    let workplaceTypeValue = undefined;
+                    if(document.querySelector(".job-details-jobs-unified-top-card__job-insight span span")?.innerText){
+                        workplaceTypeValue = document.querySelector(".job-details-jobs-unified-top-card__job-insight span span")?.innerText;
+                    }else if (document.querySelector(".job-details-preferences-and-skills__pill span span")?.innerText){
+                        workplaceTypeValue = document.querySelector(".job-details-preferences-and-skills__pill span span")?.innerText
+                    }
                     return {
                         jobTitle: getElementText("h1"),
                         companyName: getElementText(".job-details-jobs-unified-top-card__company-name a"),
-                        workplaceType: getElementText(".job-details-jobs-unified-top-card__job-insight span span span span"),
+                        workplaceType: workplaceTypeValue, 
                         easyApply: document.querySelector(".jobs-apply-button--top-card button")?.ariaLabel.includes('Easy Apply') || false,
                         location: getElementText(".job-details-jobs-unified-top-card__primary-description-container div span").toLowerCase()
                     };

@@ -3,14 +3,14 @@ window.cityList = {
         "Milan", "Rome", "Naples", "Turin", "Genoa", "Genova", "Bologna", "Florence", "Venice", "Verona", "Messina",
         "Padua", "Trieste", "Brescia", "Parma", "Taranto", "Prato", "Modena", "Catania", "Bergamo", "Rimini",
         "Livorno", "Cagliari", "Foggia", "Salerno", "Ravenna", "Ferrara", "Sassari", "Syracuse", "Monza",
-        "Forlì", "Pescara", "Latina", "Como", "Lucca", "Arezzo", "Trapani", "Cremona", "Pistoia", "Brindisi",
+        "Forlì","Lissone", "Pescara", "Latina", "Como", "Lucca", "Arezzo", "Trapani", "Cremona", "Pistoia", "Brindisi",
         "Vicenza", "La Spezia", "Novara", "Pisa", "Grosseto", "Cesenatico", "Varese", "Treviso", "Lecce", "Ancona","Resana"
     ],
     "Italia": [
         "Milano", "Roma", "Napoli", "Torino", "Genova", "Genova", "Bologna", "Firenze", "Venezia", "Verona", "Messina",
         "Padova", "Trieste", "Brescia", "Parma", "Taranto", "Prato", "Modena", "Catania", "Bergamo", "Rimini",
         "Livorno", "Cagliari", "Foggia", "Salerno", "Ravenna", "Ferrara", "Sassari", "Siracusa", "Monza",
-        "Forlì", "Pescara", "Latina", "Como", "Lucca", "Arezzo", "Trapani", "Cremona", "Pistoia", "Brindisi","Resana",
+        "Forlì", "Lissone", "Pescara", "Latina", "Como", "Lucca", "Arezzo", "Trapani", "Cremona", "Pistoia", "Brindisi","Resana",
         "Vicenza", "La Spezia", "Novara", "Pisa", "Grosseto", "Cesenatico", "Varese", "Treviso", "Lecce", "Ancona"
     ],
     "Germany": [
