@@ -36,52 +36,21 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
                 };
 
                 const getLinkedinJobData = () => {
-    // Extracting information from HTML
-    let rawLocation = getElementText(".job-details-jobs-unified-top-card__primary-description-container div span").toLowerCase();
-
-    // Clean the location data
-    let cleanedLocation = rawLocation
-        .replace(/remote/i, '')
-        .replace(/hybrid/i, '')
-        .replace(/on-site/i, '')
-        .replace(/in sede/i, '')
-        .replace(/matches.*$/i, '')  // Remove unwanted sentences
-        .trim();
-
-    // Extract precise workplaceType from the HTML
-    let workplaceTypeValue = "";
-    const workplaceSpan = document.querySelector(".job-details-jobs-unified-top-card__job-insight span");
-    if (workplaceSpan && workplaceSpan.innerText) {
-        const workplaceText = workplaceSpan.innerText.toLowerCase();
-
-        // Check for "Remote"
-        if (workplaceText.includes("remote")) {
-            workplaceTypeValue = "Remote";
-        } else if (workplaceText.includes("hybrid")) {
-            workplaceTypeValue = "Hybrid";
-        } else if (workplaceText.includes("on-site")) {
-            workplaceTypeValue = "On-site";
-        } else {
-            workplaceTypeValue = "Not Specified"; // If no specific type is found
-        }
-    }
-
-    // Filter precise publish date
-    const publishDateSpans = Array.from(document.querySelectorAll(".job-details-jobs-unified-top-card__tertiary-description-container span span"));
-    const publishDate = publishDateSpans.map(el => el.innerText).find(text =>
-        /\b(ago|fa)\b/i.test(text)
-    ) || "";
-
-    return {
-        jobTitle: getElementText("h1"),
-        companyName: getElementText(".job-details-jobs-unified-top-card__company-name a"),
-        workplaceType: workplaceTypeValue,
-        publishDate: publishDate,
-        easyApply: document.querySelector(".jobs-apply-button--top-card button")?.ariaLabel?.includes('Easy Apply') || false,
-        location: cleanedLocation
-    };
-};
-
+                    let workplaceTypeValue = undefined;
+                    if (document.querySelector(".job-details-jobs-unified-top-card__job-insight span span")?.innerText) {
+                        workplaceTypeValue = document.querySelector(".job-details-jobs-unified-top-card__job-insight span span")?.innerText;
+                    } else if (document.querySelector(".job-details-preferences-and-skills__pill span span")?.innerText) {
+                        workplaceTypeValue = document.querySelector(".job-details-preferences-and-skills__pill span span")?.innerText
+                    }
+                    return {
+                        jobTitle: getElementText("h1"),
+                        companyName: getElementText(".job-details-jobs-unified-top-card__company-name a"),
+                        workplaceType: workplaceTypeValue,
+                        publishDate: document.querySelector(".job-details-jobs-unified-top-card__tertiary-description-container span span:nth-of-type(3)")?.innerText,
+                        easyApply: document.querySelector(".jobs-apply-button--top-card button")?.ariaLabel.includes('Easy Apply') || false,
+                        location: getElementText(".job-details-jobs-unified-top-card__primary-description-container div span").toLowerCase()
+                    };
+                }
                 const getGlassdoorJobData = () => {
                     return {
                         jobTitle: getElementText(".heading_Heading__BqX5J.heading_Level1__soLZs"),
@@ -91,7 +60,7 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
                         location: getElementText(".JobDetails_location__mSg5h").toLowerCase(),
                         publishDate: ""
                     };
-                };
+                }
 
                 let jobData = {};
                 if (pageMode === "LinkedIn") {
@@ -117,7 +86,6 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
 
         const today = new Date();
         const formattedDate = `${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getDate().toString().padStart(2, '0')}/${today.getFullYear()}`;
-
         // Clean multi-line and extra spaces
         const clean = str => (str || '').replace(/\s*\n\s*/g, ' ').replace(/\s+/g, ' ').trim();
 
