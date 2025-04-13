@@ -59,7 +59,7 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
                         easyApply: document.querySelector(".jobs-apply-button--top-card button")?.ariaLabel?.includes('Easy Apply') || false,
                         location: cleanedLocation
                     };
-                };
+                }
 
                 const getGlassdoorJobData = () => ({
                     jobTitle: getElementText(".heading_Heading__BqX5J.heading_Level1__soLZs"),

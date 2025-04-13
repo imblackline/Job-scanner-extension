@@ -88,12 +88,15 @@ Pull requests are welcome! If you have feature suggestions or bug fixes:
 ## 🏆 **Credits**
 💡 Developed by **Amirhossein Yaghoubnezhad**  
 📧 Contact: **yaghoubnezhad.amirhossein@gmail.com**  
-🌎 GitHub: **[My GitHub Profile](https://github.com/imblackline)**  
+🌎 GitHub: **[My GitHub Profile](https://github.com/imblackline)** 
+ 
+---
 
-## 🏆 **Contributors**
+## 🏆 **Contributor**
 💡 Developer **Reza Javanmaqul**  
 📧 Contact: **Rj2mcode@gmail.com**  
 🌎 GitHub: **[GitHub Profile](https://github.com/Rj2mcode)** 
+
 ---
 
 🚀 **Enjoy automating your job search with Job Scanner!**
