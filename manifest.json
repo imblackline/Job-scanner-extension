@@ -8,8 +8,7 @@
     "tabs",
     "scripting",
     "clipboardWrite",
-    "storage",
-    "https://script.google.com/*"
+    "storage"
   ],
 
   "icons": {
