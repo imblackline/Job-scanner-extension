@@ -19,7 +19,7 @@ The **Job Scanner** is a Chrome extension that helps you **automate job tracking
 ### 1️⃣ **Download & Install**
 1. **Clone or Download the Repository**:
    ```bash
-   git clone https://github.com/YOUR_GITHUB_USERNAME/job-scanner-extension.git
+   git clone https://github.com/imblackline/job-scanner-extension.git
    cd job-scanner-extension
    ```
 2. Open **Google Chrome** and go to:
@@ -38,8 +38,9 @@ The **Job Scanner** is a Chrome extension that helps you **automate job tracking
 4. Click **"Scan Job"** to extract job details.
 5. The data will be **copied to your clipboard**.
 6. **Paste** the data into **Google Sheets**.
+7. (Optional)  For setup Google Sheet Auto-Saver follow steps below
 
-## ⚙️ **How to Setup Google Sheet Auto Saver**
+## ⚙️ **How to Setup Google Sheet Auto-Saver**
 1. Log in to your Google account.
 2. Open a new Google Sheet.
 3. Go to **Extensions > Apps Script**.
@@ -53,9 +54,9 @@ The **Job Scanner** is a Chrome extension that helps you **automate job tracking
 8. Click the **Authorize access** button and allow the required permissions.
 9. After deployment, copy the **App URL** (e.g.,  
    `https://script.google.com/macros/s/AKfycbyV_Lz....NDXBOL0A/exec`).
-10. Open the `config.js` file and replace `Your-App-URL` with your copied App URL.
+10. Now add your copied App URL to the extension "Configure" section.
 11. Use Google Sheet Template (Optional)
-12. Run your project.
+    
 ✅ Now you're ready to automatically save data to Google Sheets!
 
 ---
@@ -76,7 +77,7 @@ To **easily track your job applications**, use this **Google Sheets template**:
 Pull requests are welcome! If you have feature suggestions or bug fixes:
 1. **Fork the repository**.
 2. **Create a new branch**.
-3. **Submit a pull request**.
+3. **Submit a pull request to the development branch**.
 
 ---
 
