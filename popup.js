@@ -1,12 +1,19 @@
+if (localStorage.getItem('appUrl')) {
+    document.getElementById('appUrlInput').value = localStorage.getItem('appUrl');
+}
+
 document.getElementById('scanBtn').addEventListener('click', async () => {
     const TabInfo = document.getElementById('TabInfo');
     TabInfo.textContent = "Scanning job details...";
-
-    const appUrl = CONFIG.appUrl;
+    if (localStorage.getItem('appUrl') == null) {
+        TabInfo.textContent = "⭕Set your App link in the config";
+        return;
+    }
+    const appUrl = localStorage.getItem('appUrl');
+    TabInfo.textContent = appUrl;
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     let mode = "";
 
-    // Check if the current URL is a supported job site
     if (tab.url.includes(CONFIG.supportedSites.linkedin)) {
         mode = "LinkedIn";
     } else if (tab.url.includes(CONFIG.supportedSites.glassdoor)) {
@@ -73,7 +80,7 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
                     jobData = getGlassdoorJobData();
                 }
 
-                // Ensure `cities` is valid before using Object.values
+
                 const city = Object.values(cities).flat()
                     .find(ct => jobData.location.includes(ct.toLowerCase())) || "-";
 
@@ -175,4 +182,19 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
         console.error("❌ Script execution failed:", error);
         TabInfo.textContent = "Error occurred while scanning job details";
     }
+});
+
+
+
+document.getElementById('saveConfigBtn').addEventListener('click', (event) => {
+    const appUrlInput = document.getElementById('appUrlInput').value;
+    if (appUrlInput.trim() !== '') {
+        localStorage.setItem('appUrl', appUrlInput);
+        const toggleElement = document.querySelector('.c-form__toggle');
+        const originalTitle = toggleElement.getAttribute('data-title');
+        toggleElement.setAttribute('data-title', '✅ Saved!');
+        setTimeout(() => {
+            toggleElement.setAttribute('data-title', originalTitle);
+        }, 2000);
+    } 
 });

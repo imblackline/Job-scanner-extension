@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Job Scanner",
-  "version": "3.0",
+  "version": "3.1",
   "description": "Copies job title and company name from and pastes it into Google Sheets",
   "permissions": [
     "activeTab",
