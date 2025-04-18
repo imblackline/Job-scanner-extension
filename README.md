@@ -39,7 +39,7 @@ The **Job Scanner** is a Chrome extension that helps you **automate job tracking
 5. The data will be **copied to your clipboard**.
 6. **Paste** the data into **Google Sheets**.
 
-## 🖥️ **How to Setup Google Sheet Auto Saver**
+## ⚙️ **How to Setup Google Sheet Auto Saver**
 1. Log in to your Google account.
 2. Open a new Google Sheet.
 3. Go to **Extensions > Apps Script**.
@@ -53,7 +53,7 @@ The **Job Scanner** is a Chrome extension that helps you **automate job tracking
 8. Click the **Authorize access** button and allow the required permissions.
 9. After deployment, copy the **App URL** (e.g.,  
    `https://script.google.com/macros/s/AKfycbyV_Lz....NDXBOL0A/exec`).
-10. Open the `popup.js` file and replace `Your-App-URL` with your copied App URL.
+10. Open the `config.js` file and replace `Your-App-URL` with your copied App URL.
 11. Use Google Sheet Template (Optional)
 12. Run your project.
 ✅ Now you're ready to automatically save data to Google Sheets!
@@ -72,11 +72,6 @@ To **easily track your job applications**, use this **Google Sheets template**:
 
 ---
 
-## 📜 **License**
-This project is licensed under the **MIT License**. Feel free to use and modify.
-
----
-
 ## 💡 **Contributing**
 Pull requests are welcome! If you have feature suggestions or bug fixes:
 1. **Fork the repository**.
@@ -92,11 +87,8 @@ Pull requests are welcome! If you have feature suggestions or bug fixes:
  
 ---
 
-## 🏆 **Contributor**
-💡 Developer **Reza Javanmaqul**  
-📧 Contact: **Rj2mcode@gmail.com**  
-🌎 GitHub: **[GitHub Profile](https://github.com/Rj2mcode)** 
+## 🎖️ **Contributors**
+<img src="https://img.icons8.com/?size=100&id=106567&format=png&color=000000" alt="GitHub" width="25" height="25" style="margin-bottom:-8px; margin-right:5px"/>
+<a href="https://github.com/Rj2mcode">Reza Javanmaqul</a>
 
----
 
-🚀 **Enjoy automating your job search with Job Scanner!**

@@ -1,15 +1,15 @@
 document.getElementById('scanBtn').addEventListener('click', async () => {
     const TabInfo = document.getElementById('TabInfo');
     TabInfo.textContent = "Scanning job details...";
-    
-    const appUrl = "Your-App-URL"; // Just Replace Your App URL Here
 
+    const appUrl = CONFIG.appUrl;
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     let mode = "";
 
-    if (tab.url.includes("linkedin.com/jobs")) {
+    // Check if the current URL is a supported job site
+    if (tab.url.includes(CONFIG.supportedSites.linkedin)) {
         mode = "LinkedIn";
-    } else if (tab.url.includes("glassdoor.it/job-listing")) {
+    } else if (tab.url.includes(CONFIG.supportedSites.glassdoor)) {
         mode = "Glassdoor";
     } else {
         alert("Please open a LinkedIn or Glassdoor job page.");
@@ -28,55 +28,60 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
     try {
         const [resp] = await chrome.scripting.executeScript({
             target: { tabId: tab.id },
-            args: [cityList, countryList, mode],
+            args: [window.cityList, window.countryList, mode],
             function: (cities, countries, pageMode) => {
+                if (!cities || !countries) {
+                    throw new Error("cityList or countryList is missing!");
+                }
+
                 const getElementText = (selector, defaultValue = "Not Found") => {
                     return document.querySelector(selector)?.innerText || defaultValue;
                 };
 
                 const getLinkedinJobData = () => {
-                    const rawLocation = getElementText(".job-details-jobs-unified-top-card__primary-description-container div span").toLowerCase();
-                    const cleanedLocation = rawLocation
-                        .replace(/(remote|hybrid|on-site|in sede)/gi, '')
-                        .replace(/matches.*$/i, '')
-                        .trim();
+                    let workplaceTypeValue = undefined;
 
-                    const workplaceSpan = document.querySelector(".job-details-jobs-unified-top-card__job-insight span");
-                    const workplaceText = workplaceSpan?.innerText?.toLowerCase() || "";
-                    const workplaceTypeValue = 
-                        workplaceText.includes("remote") ? "Remote" :
-                        workplaceText.includes("hybrid") ? "Hybrid" :
-                        workplaceText.includes("on-site") ? "On-site" : "Not Specified";
-
-                    const publishDateSpans = [...document.querySelectorAll(".job-details-jobs-unified-top-card__tertiary-description-container span span")];
-                    const publishDate = publishDateSpans.map(el => el.innerText).find(text => /\b(ago|fa)\b/i.test(text)) || "";
-
+                    if (document.querySelector(".job-details-fit-level-preferences span")?.innerText) {
+                        workplaceTypeValue = document.querySelector(".job-details-fit-level-preferences span")?.innerText;
+                    } else if (document.querySelector(".job-details-preferences-and-skills__pill span")?.innerText) {
+                        workplaceTypeValue = document.querySelector(".job-details-preferences-and-skills__pill span")?.innerText
+                    }
                     return {
                         jobTitle: getElementText("h1"),
                         companyName: getElementText(".job-details-jobs-unified-top-card__company-name a"),
                         workplaceType: workplaceTypeValue,
-                        publishDate,
-                        easyApply: document.querySelector(".jobs-apply-button--top-card button")?.ariaLabel?.includes('Easy Apply') || false,
-                        location: cleanedLocation
+                        publishDate: document.querySelector(".job-details-jobs-unified-top-card__tertiary-description-container span span:nth-of-type(3)")?.innerText,
+                        easyApply: document.querySelector(".jobs-apply-button--top-card button")?.ariaLabel.includes('Easy Apply') || false,
+                        location: getElementText(".job-details-jobs-unified-top-card__primary-description-container div span").toLowerCase()
+                    };
+                }
+                const getGlassdoorJobData = () => {
+                    return {
+                        jobTitle: getElementText(".heading_Heading__BqX5J.heading_Level1__soLZs"),
+                        companyName: getElementText(".heading_Heading__BqX5J.heading_Subhead__Ip1aW"),
+                        workplaceType: "On-site",
+                        easyApply: document.querySelector(".button_ButtonContent__a4TUW")?.querySelector('.EasyApplyButton_content__1cGPo') !== null || false,
+                        location: getElementText(".JobDetails_location__mSg5h").toLowerCase(),
+                        publishDate: ""
                     };
                 }
 
-                const getGlassdoorJobData = () => ({
-                    jobTitle: getElementText(".heading_Heading__BqX5J.heading_Level1__soLZs"),
-                    companyName: getElementText(".heading_Heading__BqX5J.heading_Subhead__Ip1aW"),
-                    workplaceType: "On-site",
-                    easyApply: !!document.querySelector(".button_ButtonContent__a4TUW .EasyApplyButton_content__1cGPo"),
-                    location: getElementText(".JobDetails_location__mSg5h").toLowerCase(),
-                    publishDate: ""
-                });
+                let jobData = {};
+                if (pageMode === "LinkedIn") {
+                    jobData = getLinkedinJobData();
+                } else if (pageMode === "Glassdoor") {
+                    jobData = getGlassdoorJobData();
+                }
 
-                const jobData = pageMode === "LinkedIn" ? getLinkedinJobData() : getGlassdoorJobData();
+                // Ensure `cities` is valid before using Object.values
+                const city = Object.values(cities).flat()
+                    .find(ct => jobData.location.includes(ct.toLowerCase())) || "-";
 
-                const city = Object.values(cities).flat().find(ct => jobData.location.includes(ct.toLowerCase())) || "-";
                 let country = countries.find(ct => jobData.location.includes(ct.toLowerCase())) || "-";
 
                 if (country === "-" && city !== "-") {
-                    country = Object.entries(cities).find(([countryName, cityArray]) => cityArray.includes(city))?.[0] || "-";
+                    country = Object.entries(cities)
+                        .find(([country, cities]) => cities.includes(city))?.[0] || "-";
                 }
 
                 return { ...jobData, city, country };
@@ -84,74 +89,82 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
         });
 
         const today = new Date();
-        const formattedDate = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
-
+        const formattedDate = `${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getDate().toString().padStart(2, '0')}/${today.getFullYear()}`;
         const clean = str => (str || '').replace(/\s*\n\s*/g, ' ').replace(/\s+/g, ' ').trim();
+
+        const textToWrite = [
+            clean(resp.result.jobTitle),
+            clean(resp.result.companyName),
+            formattedDate,
+            `=HYPERLINK("${tab.url}","Link")`,
+            resp.result.easyApply ? 'Easy Apply' : 'Applied',
+            CONFIG.defaultStatus,
+            CONFIG.defaultStatus,
+            CONFIG.defaultEmptyValue,
+            CONFIG.defaultEmptyValue,
+            CONFIG.defaultEmptyValue,
+            clean(resp.result.country),
+            clean(resp.result.city),
+            clean(resp.result.workplaceType),
+            clean(resp.result.publishDate),
+            ''
+        ].join('\t');
 
         const jobInfo = {
             jobTitle: clean(resp.result.jobTitle),
             companyName: clean(resp.result.companyName),
             date: formattedDate,
             link: tab.url,
-            easyApply: resp.result.easyApply ? 'Easy Apply' : 'Applied',
-            status1: 'Not Respond',
-            status2: 'Not Respond',
-            note1: '-',
-            note2: '-',
-            note3: '-',
+            easyApply: resp.result.easyApply,
+            status1: CONFIG.defaultStatus,
+            lastStatus: CONFIG.defaultStatus,
+            interviewDates: CONFIG.defaultEmptyValue,
+            followUpDate: CONFIG.defaultEmptyValue,
+            salaryOffered: CONFIG.defaultEmptyValue,
             country: clean(resp.result.country),
             city: clean(resp.result.city),
             workplaceType: clean(resp.result.workplaceType),
-            publishDate: clean(resp.result.publishDate)
+            publishDate: clean(resp.result.publishDate),
+            coverLetter: '',
+            details: '',
         };
 
-        const textToWrite = [
-            jobInfo.jobTitle,
-            jobInfo.companyName,
-            jobInfo.date,
-            `=HYPERLINK("${jobInfo.link}","Link")`,
-            jobInfo.easyApply,
-            jobInfo.status1,
-            jobInfo.status2,
-            jobInfo.note1,
-            jobInfo.note2,
-            jobInfo.note3,
-            jobInfo.country,
-            jobInfo.city,
-            jobInfo.workplaceType,
-            jobInfo.publishDate
-        ].join('\t');
 
-        // Copy to clipboard
-        await navigator.clipboard.writeText(textToWrite);
-        TabInfo.textContent = `✅ Job data copied to clipboard`;
+        navigator.clipboard.writeText(textToWrite).then(() => {
+            TabInfo.textContent = `✅ Job data copied to clipboard`;
+        }).catch(err => {
+            console.error("❌ Failed to copy:", err);
+        });
 
         if (document.getElementById('saveToSheet').checked) {
-            if(appUrl != "Your-App-URL" && appUrl != ""){
+            if (appUrl != "Your-App-URL" && appUrl != "") {
                 TabInfo.textContent = "🔄 Saving to Google Sheets...";
 
-            await new Promise(resolve => setTimeout(resolve, 500)); // Short delay
+                await new Promise(resolve => setTimeout(resolve, 500));
 
-            TabInfo.textContent = "🔄 Sending...";
-            try{
-                const response = await fetch(appUrl, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(jobInfo)
-                    
-                });
-                await new Promise(resolve => setTimeout(resolve, 1)); // Short delay
-            const result = await response.json();
-           
-            await new Promise(resolve => setTimeout(resolve, 1)); // Short delay
-            if (response.ok && result.result === "Success") {
-                TabInfo.textContent = "✅ Saved & Copied!";
+                TabInfo.textContent = "🔄 Sending...";
+                try {
+                    const response = await fetch(appUrl, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json"
+                        },
+                        mode: "cors",
+                        body: JSON.stringify(jobInfo)
+                    });
+
+                    const responseText = await response.text();
+
+                    if (response.ok) {
+                        TabInfo.textContent = "✅ Saved & Copied!";
+                    } else {
+                        throw new Error(`Calling Google Sheets API error with status: ${response.status}`);
+                    }
+                } catch (e) {
+                    TabInfo.textContent = `❌ Error: ${e.message}`;
+                }
             } else {
-                throw new Error(result.error || "Unknown error");
-            }
-            }
-            catch(e){TabInfo.textContent = "✅ Sended to Google Sheet"; }
-            }else{
                 TabInfo.textContent = "❌ Please set your App link";
             }
         } else {
