@@ -1,20 +1,30 @@
+if (localStorage.getItem('appUrl')) {
+    document.getElementById('appUrlInput').value = localStorage.getItem('appUrl');
+}
+
 document.getElementById('scanBtn').addEventListener('click', async () => {
     const TabInfo = document.getElementById('TabInfo');
     TabInfo.textContent = "Scanning job details...";
-
-    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (localStorage.getItem('appUrl') == null) {
+        TabInfo.textContent = "⭕Set your App link in the config";
+        return;
+    }
+    const appUrl = localStorage.getItem('appUrl');
+    TabInfo.textContent = appUrl;
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     let mode = "";
-    if (tab.url.includes("linkedin.com/jobs")) {
+
+    if (tab.url.includes(CONFIG.supportedSites.linkedin)) {
         mode = "LinkedIn";
-    } else if (tab.url.includes("glassdoor.it/job-listing")) {
+    } else if (tab.url.includes(CONFIG.supportedSites.glassdoor)) {
         mode = "Glassdoor";
     } else {
         alert("Please open a LinkedIn or Glassdoor job page.");
         return;
     }
 
-    const cityList = JSON.stringify(window.cityList);
-    const countryList = JSON.stringify(window.countryList);
+    const cityList = window.cityList;
+    const countryList = window.countryList;
 
     if (!cityList || !countryList) {
         console.error("❌ cityList or countryList is not loaded!");
@@ -37,10 +47,11 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
 
                 const getLinkedinJobData = () => {
                     let workplaceTypeValue = undefined;
-                    if (document.querySelector(".job-details-jobs-unified-top-card__job-insight span span")?.innerText) {
-                        workplaceTypeValue = document.querySelector(".job-details-jobs-unified-top-card__job-insight span span")?.innerText;
-                    } else if (document.querySelector(".job-details-preferences-and-skills__pill span span")?.innerText) {
-                        workplaceTypeValue = document.querySelector(".job-details-preferences-and-skills__pill span span")?.innerText
+
+                    if (document.querySelector(".job-details-fit-level-preferences span")?.innerText) {
+                        workplaceTypeValue = document.querySelector(".job-details-fit-level-preferences span")?.innerText;
+                    } else if (document.querySelector(".job-details-preferences-and-skills__pill span")?.innerText) {
+                        workplaceTypeValue = document.querySelector(".job-details-preferences-and-skills__pill span")?.innerText
                     }
                     return {
                         jobTitle: getElementText("h1"),
@@ -69,7 +80,7 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
                     jobData = getGlassdoorJobData();
                 }
 
-                // Ensure `cities` is valid before using Object.values
+
                 const city = Object.values(cities).flat()
                     .find(ct => jobData.location.includes(ct.toLowerCase())) || "-";
 
@@ -86,7 +97,6 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
 
         const today = new Date();
         const formattedDate = `${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getDate().toString().padStart(2, '0')}/${today.getFullYear()}`;
-        // Clean multi-line and extra spaces
         const clean = str => (str || '').replace(/\s*\n\s*/g, ' ').replace(/\s+/g, ' ').trim();
 
         const textToWrite = [
@@ -95,16 +105,37 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
             formattedDate,
             `=HYPERLINK("${tab.url}","Link")`,
             resp.result.easyApply ? 'Easy Apply' : 'Applied',
-            'Not Respond',
-            'Not Respond',
-            '-',
-            '-',
-            '-',
+            CONFIG.defaultStatus,
+            CONFIG.defaultStatus,
+            CONFIG.defaultEmptyValue,
+            CONFIG.defaultEmptyValue,
+            CONFIG.defaultEmptyValue,
             clean(resp.result.country),
             clean(resp.result.city),
             clean(resp.result.workplaceType),
-            clean(resp.result.publishDate)
+            clean(resp.result.publishDate),
+            ''
         ].join('\t');
+
+        const jobInfo = {
+            jobTitle: clean(resp.result.jobTitle),
+            companyName: clean(resp.result.companyName),
+            date: formattedDate,
+            link: tab.url,
+            easyApply: resp.result.easyApply,
+            status1: CONFIG.defaultStatus,
+            lastStatus: CONFIG.defaultStatus,
+            interviewDates: CONFIG.defaultEmptyValue,
+            followUpDate: CONFIG.defaultEmptyValue,
+            salaryOffered: CONFIG.defaultEmptyValue,
+            country: clean(resp.result.country),
+            city: clean(resp.result.city),
+            workplaceType: clean(resp.result.workplaceType),
+            publishDate: clean(resp.result.publishDate),
+            coverLetter: '',
+            details: '',
+        };
+
 
         navigator.clipboard.writeText(textToWrite).then(() => {
             TabInfo.textContent = `✅ Job data copied to clipboard`;
@@ -112,8 +143,58 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
             console.error("❌ Failed to copy:", err);
         });
 
+        if (document.getElementById('saveToSheet').checked) {
+            if (appUrl != "Your-App-URL" && appUrl != "") {
+                TabInfo.textContent = "🔄 Saving to Google Sheets...";
+
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                TabInfo.textContent = "🔄 Sending...";
+                try {
+                    const response = await fetch(appUrl, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json"
+                        },
+                        mode: "cors",
+                        body: JSON.stringify(jobInfo)
+                    });
+
+                    const responseText = await response.text();
+
+                    if (response.ok) {
+                        TabInfo.textContent = "✅ Saved & Copied!";
+                    } else {
+                        throw new Error(`Calling Google Sheets API error with status: ${response.status}`);
+                    }
+                } catch (e) {
+                    TabInfo.textContent = `❌ Error: ${e.message}`;
+                }
+            } else {
+                TabInfo.textContent = "❌ Please set your App link";
+            }
+        } else {
+            TabInfo.textContent = "✅ Copied to clipboard!";
+        }
+
     } catch (error) {
         console.error("❌ Script execution failed:", error);
         TabInfo.textContent = "Error occurred while scanning job details";
     }
+});
+
+
+
+document.getElementById('saveConfigBtn').addEventListener('click', (event) => {
+    const appUrlInput = document.getElementById('appUrlInput').value;
+    if (appUrlInput.trim() !== '') {
+        localStorage.setItem('appUrl', appUrlInput);
+        const toggleElement = document.querySelector('.c-form__toggle');
+        const originalTitle = toggleElement.getAttribute('data-title');
+        toggleElement.setAttribute('data-title', '✅ Saved!');
+        setTimeout(() => {
+            toggleElement.setAttribute('data-title', originalTitle);
+        }, 2000);
+    } 
 });

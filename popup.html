@@ -1,18 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Job Scanner</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <div class="container">
         <p id="TabInfo"><b>Let's make dreams a reality</b> 🚀</p>
         <button id="scanBtn" class="scan-button">Apply Job</button>
+        <label>
+            <input type="checkbox" checked="True" id="saveToSheet" />
+            Auto save in Sheet
+        </label>
+        <input class="c-checkbox" type="checkbox" id="checkbox">
+        <div class="c-formContainer">
+            <form class="c-form" action="">
+                <input class="c-form__input" placeholder="Enter your App URL" type="text" id="appUrlInput" required>
+                <label id="saveConfigBtn" class="c-form__buttonLabel" for="checkbox">
+                    <button class="c-form__button" type="button">OK</button>
+                </label>
+                <label class="c-form__toggle" for="checkbox" data-title="Configure"></label>
+            </form>
+        </div>
     </div>
+
 
     <script src="data/cityList.js"></script>
     <script src="data/countryList.js"></script>
+    <script src="config.js"></script>
     <script src="popup.js"></script>
 </body>
+
 </html>
