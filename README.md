@@ -88,7 +88,6 @@ Pull requests are welcome! If you have feature suggestions or bug fixes:
 ---
 
 ## 🎖️ **Contributors**
-<img src="https://img.icons8.com/?size=100&id=106567&format=png&color=000000" alt="GitHub" width="25" height="25" style="margin-bottom:-8px; margin-right:5px"/>
-<a href="https://github.com/Rj2mcode">Reza Javanmaqul</a>
+🥇 **[Reza Javanmaqul](https://github.com/Rj2mcode)**
 
 
