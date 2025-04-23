@@ -20,7 +20,8 @@
   "host_permissions": [
     "https://*.google.com/*",
     "https://script.google.com/*",
-    "https://www.linkedin.com/jobs/*"
+    "https://www.linkedin.com/jobs/*",
+    "https://*.indeed.com/*"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -32,7 +33,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://www.linkedin.com/jobs/*", "https://www.glassdoor.it/job-listing/*"],
+      "matches": ["https://www.linkedin.com/jobs/*", "https://www.glassdoor.it/job-listing/*", "https://*.indeed.com/*"],
       "js": ["content.js"]
     }
   ],

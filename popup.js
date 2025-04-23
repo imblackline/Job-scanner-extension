@@ -16,10 +16,12 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
 
     if (tab.url.includes(CONFIG.supportedSites.linkedin)) {
         mode = "LinkedIn";
-    } else if (tab.url.includes(CONFIG.supportedSites.glassdoor)) {
+    } else if (CONFIG.supportedSites.glassdoor.some(site => tab.url.includes(site))) {
         mode = "Glassdoor";
+    } else if (tab.url.includes(CONFIG.supportedSites.indeed)) {
+        mode = "Indeed";
     } else {
-        alert("Please open a LinkedIn or Glassdoor job page.");
+        alert("Please open a LinkedIn, Indeed, or Glassdoor job page.");
         return;
     }
 
@@ -44,7 +46,17 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
                 const getElementText = (selector, defaultValue = "Not Found") => {
                     return document.querySelector(selector)?.innerText || defaultValue;
                 };
-
+                const getIndeedJobData = () => {
+                    return {
+                        jobTitle: getElementText('[data-testid="simpler-jobTitle"]'),
+                        companyName: getElementText(".jobsearch-JobInfoHeader-companyNameSimple"),
+                        location: getElementText('[data-testid="jobsearch-JobInfoHeader-companyLocation"]'),
+                        publishDate: "",
+                        easyApply: getElementText(".jobsearch-IndeedApplyButton-newDesign")?.includes("Candidati ora") || getElementText(".jobsearch-IndeedApplyButton-newDesign")?.includes("Apply Now") || false,
+                        workplaceType: "On-site",
+                        link: `https://it.indeed.com/viewjob?jk=${decodeURIComponent(document.querySelector('html > body > ifl-portal div ul li:nth-child(2) a').href.split('body=')[1]).match(/jk=([a-f0-9]+)/)[1]}`
+                    };
+                }
                 const getLinkedinJobData = () => {
                     let workplaceTypeValue = undefined;
 
@@ -78,6 +90,8 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
                     jobData = getLinkedinJobData();
                 } else if (pageMode === "Glassdoor") {
                     jobData = getGlassdoorJobData();
+                } else if (pageMode === "Indeed") {
+                    jobData = getIndeedJobData();
                 }
 
 
@@ -98,12 +112,12 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
         const today = new Date();
         const formattedDate = `${(today.getMonth() + 1).toString().padStart(2, '0')}/${today.getDate().toString().padStart(2, '0')}/${today.getFullYear()}`;
         const clean = str => (str || '').replace(/\s*\n\s*/g, ' ').replace(/\s+/g, ' ').trim();
-
+        const jobLink = resp.result?.link? resp.result?.link : tab.url;
         const textToWrite = [
             clean(resp.result.jobTitle),
             clean(resp.result.companyName),
             formattedDate,
-            `=HYPERLINK("${tab.url}","Link")`,
+            `=HYPERLINK("${jobLink}","Link")`,
             resp.result.easyApply ? 'Easy Apply' : 'Applied',
             CONFIG.defaultStatus,
             CONFIG.defaultStatus,
@@ -116,12 +130,12 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
             clean(resp.result.publishDate),
             ''
         ].join('\t');
-
+        
         const jobInfo = {
             jobTitle: clean(resp.result.jobTitle),
             companyName: clean(resp.result.companyName),
             date: formattedDate,
-            link: tab.url,
+            link: jobLink,
             easyApply: resp.result.easyApply,
             status1: CONFIG.defaultStatus,
             lastStatus: CONFIG.defaultStatus,
@@ -196,5 +210,5 @@ document.getElementById('saveConfigBtn').addEventListener('click', (event) => {
         setTimeout(() => {
             toggleElement.setAttribute('data-title', originalTitle);
         }, 2000);
-    } 
+    }
 });
