@@ -4,7 +4,7 @@ const CONFIG = {
   defaultEmptyValue: "-",
   supportedSites: {
     linkedin: "linkedin.com/jobs",
-    glassdoor: "glassdoor.it/job-listing"
+    glassdoor: ["glassdoor.it/job-listing", "glassdoor.it/Lavoro"]
   },
   sheetName: "Sheet1",
   checkboxColumn: 15

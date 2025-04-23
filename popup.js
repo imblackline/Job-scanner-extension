@@ -16,7 +16,7 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
 
     if (tab.url.includes(CONFIG.supportedSites.linkedin)) {
         mode = "LinkedIn";
-    } else if (tab.url.includes(CONFIG.supportedSites.glassdoor)) {
+    } else if (CONFIG.supportedSites.glassdoor.some(site => tab.url.includes(site))) {
         mode = "Glassdoor";
     } else {
         alert("Please open a LinkedIn or Glassdoor job page.");
