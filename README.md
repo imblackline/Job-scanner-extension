@@ -6,7 +6,7 @@ The **Job Scanner** is a Chrome extension that helps you **automate job tracking
 ---
 
 ## 🎯 Features
-- ✅ Extract **job details** from multiple job platforms (LinkedIn, Indeed, Glassdoor, etc.)  
+- ✅ Extract **job details** from multiple job platforms (**LinkedIn, Indeed, Glassdoor**)  
 - ✅ Detect **city & country** from job postings  
 - ✅ Identify **Easy Apply or Quick Apply options**  
 - ✅ **Auto-copy job details** to clipboard for quick pasting  
@@ -32,7 +32,7 @@ The **Job Scanner** is a Chrome extension that helps you **automate job tracking
 ---
 
 ## 🖥️ **How to Use**
-1. Open any **job listing website** (LinkedIn, Indeed, Glassdoor, etc.).
+1. Open any supported **job listing website** (**LinkedIn, Indeed, Glassdoor**).
 2. Navigate to a job posting.
 3. Click on the **Job Scanner** extension icon.
 4. Click **"Scan Job"** to extract job details.
