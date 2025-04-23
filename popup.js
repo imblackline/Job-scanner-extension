@@ -21,7 +21,7 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
     } else if (tab.url.includes(CONFIG.supportedSites.indeed)) {
         mode = "Indeed";
     } else {
-        alert("Please open a LinkedIn or Glassdoor job page.");
+        alert("Please open a LinkedIn, Indeed, or Glassdoor job page.");
         return;
     }
 
